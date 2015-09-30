@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+    <h:head>
+        <title>This content will not be displayed</title>
+    </h:head>
+    <h:body>
+        <composite:interface>
+            <composite:attribute name="number" required="true" />
+        </composite:interface>
+
+        <composite:implementation>
+
+<div id="ContainerDiv#{cc.attrs.number}" class="ecgContainer">
+	<input id="voltCenterInput#{cc.attrs.number}" type="hidden" value="50" name="voltCenterInput0"></input>
+	<table width="200px">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>
+					<span id="TitleDiv#{cc.attrs.number}" class="title">#{cc.attrs.number}</span>
+				</td>
+			</tr>
+
+			<tr>
+ 				<td>
+				</td>
+				<td>
+					<div id="graphDiv#{cc.attrs.number}" class="graph">
+						<p:graphicImage value="/image/graph-loader.gif" title="graph loading indicator" alt="graph loading indicator"></p:graphicImage>
+					</div>
+				</td>
+			</tr> 
+
+			<tr>
+				<td></td>
+				<td>
+					<div id="labelDiv#{cc.attrs.number}" class="label"></div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+			
+        </composite:implementation>
+    </h:body>
+</html>

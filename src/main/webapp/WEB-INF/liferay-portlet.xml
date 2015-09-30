@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE liferay-portlet-app PUBLIC "-//Liferay//DTD Portlet Application 6.1.0//EN" "http://www.liferay.com/dtd/liferay-portlet-app_6_1_0.dtd">
+
+<liferay-portlet-app>
+	<portlet>
+		<portlet-name>visualize</portlet-name>
+		<icon>/icon.png</icon>
+		<instanceable>false</instanceable>
+		<ajaxable>true</ajaxable>
+		<!-- header includes -->
+		<header-portlet-css>/css/12_lead.css</header-portlet-css>
+		<header-portlet-javascript>/js/jquery-1.9.1.min.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/dygraph-combined.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/clickCallbacks.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/12Lead3.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/singleLead.js</header-portlet-javascript>
+		<header-portlet-javascript>/js/annotation.js</header-portlet-javascript>
+		<!-- footer includes -->
+		<footer-portlet-javascript>/js/formatting.js</footer-portlet-javascript>
+		<footer-portlet-javascript>/js/interval_new.js</footer-portlet-javascript>
+		<footer-portlet-javascript>/js/ontologyTreeAPI.js</footer-portlet-javascript>
+		<footer-portlet-javascript>/js/crosshair.js</footer-portlet-javascript>
+		<css-class-wrapper>visualize-portlet</css-class-wrapper>
+	</portlet>
+	<role-mapper>
+		<role-name>administrator</role-name>
+		<role-link>Administrator</role-link>
+	</role-mapper>
+	<role-mapper>
+		<role-name>guest</role-name>
+		<role-link>Guest</role-link>
+	</role-mapper>
+	<role-mapper>
+		<role-name>power-user</role-name>
+		<role-link>Power User</role-link>
+	</role-mapper>
+	<role-mapper>
+		<role-name>user</role-name>
+		<role-link>User</role-link>
+	</role-mapper>
+</liferay-portlet-app>

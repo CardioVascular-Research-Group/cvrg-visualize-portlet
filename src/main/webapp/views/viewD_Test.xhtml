@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+	<h:head />
+	<h:body>
+
+		<h:form id="drawGraph_loadAnnotations">
+			<!-- # action=" { annotationBacking getLeadnameFromRender}  " onstart="onStartSendLeadName();"   -->
+			<!-- document.getElementById('singleLeadMenuHeader').header='Lead:'+parent.CVRG_getLeadNum(); -->
+			<p:remoteCommand name="calledOnLoad"
+				onstart="setLeadNameOneSelection();" autoRun="true"
+				actionListener="#{annotationBacking.leadOnloadCallback}">
+			</p:remoteCommand>
+			<!--			oncomplete="DynamicTextonload()"-->
+		</h:form>
+
+		<!-- HIDDEN FIELDS TO SEND THE LEAD NAME TO BACKING BEAN START Send Lead Name TO Backing Bean -->
+		<h:panelGroup id="HiddenLeadNameStuff" layout="block"
+			style="display:none; position:relative;
+		 background-color:333; height:50px; width:100px; 
+		 left:100px;">
+			<!-- START Send Lead Name TO Backing Bean -->
+			<script>
+				var setLeadNameOneSelection = function() {
+					//alert("running viewD_Test, setLeadNameOneSelection()");
+ 					var leadName2 = CVRG_getLeadName();
+ 					var leadNum2  = CVRG_getLeadNum();
+ 					//alert("leadName2: " + leadName2 + " leadNum2: " + leadNum2);
+					// Lead Name send to the input to submit to the backing bean
+					$(".leadNamesendDOM2Graph").text(leadName2);
+					$(".leadNameDOM2Graph").val(leadName2);
+		
+					// Lead Num send to the input to submit to the backing bean
+					$(".leadNumsendDOM2Graph").text(leadNum2);
+					$(".leadNumDOM2Graph").val(leadNum2);
+ 					setLeadName();					
+				}
+			</script>
+			<!-- HIDDEN FIELDS to capture -->
+			<!-- HIDDEN FIELDS to capture -->
+			<h:form id="formLeadName">
+				<h:outputText id="leadNameGraph" class="leadNamesendDOM2Graph"
+					value="#{annotationBacking.leadName}" style="display:none" />
+				<h:inputText id="leadNamesendGraph" class="leadNameDOM2Graph"
+					value="#{annotationBacking.leadName}" style="display:none">
+					<p:ajax update="leadNameGraph" event="keyup" />
+				</h:inputText>
+
+				<h:outputText id="leadNumGraph" class="leadNumsendDOM2Graph"
+					value="#{annotationBacking.leadnum}" style="display:none;" />
+				<h:inputText id="leadNumsendGraph" class="leadNumDOM2Graph"
+					value="#{annotationBacking.leadnum}" style="display:none;">
+					<p:ajax update="leadNumGraph" event="keyup" />
+				</h:inputText>
+
+				<p:remoteCommand name="setLeadName"
+					action="#{annotationBacking.showAnnotationForLead}" />
+			</h:form>
+		</h:panelGroup>
+		<!-- END Send Lead Name TO Backing Bean -->
+
+		<h:panelGroup id="backgroundofContentDiv" layout="block"
+			styleClass="backgroundofContent">
+			<p:layout id="graphView"
+				style=" min-height:710px; height:720px; top:20px">
+				<p:layoutUnit id="ecgGraphLayout" position="center"
+					style="min-width:400px; 
+									min-height:700px; 
+									width:90%; 
+									background-color:#fdf6e3; 
+									margin:1px auto;">
+					<p:panel id="graphContainerDiv" styleClass="ecgContainer">
+						<!-- START LEAD VISULAZATION  -->
+						<h:inputHidden id="voltMinInput" value="1" immediate="true" />
+						<h:inputHidden id="voltMaxInput" value="100" immediate="true" />
+						<h:inputHidden id="voltCenterInput" value="0" immediate="true" />
+
+						<h:panelGrid columns="2" border="1">
+							<h:outputText value="" />
+							<h:outputText value="Lead Name goes here" id="TitleDiv0"
+								styleClass="title" />
+
+							<p:slider id="sliderVoltCenterSingle"
+								for="#{facesContext.externalContext.encodeNamespace(':voltCenterInput')}"
+								type="vertical" style="height:400px" minValue="-50"
+								maxValue="50" onSlideEnd="zoomVoltage()" />
+							<h:panelGroup id="ecgSingle_div" layout="block" class="graph"></h:panelGroup>
+
+							<h:outputText value="" />
+							<h:panelGroup id="status_div" layout="block" style="height:20px;"></h:panelGroup>
+
+							<h:outputText value="" />
+							<p:button id="voltCenterButton" value="center" type="button"
+								onclick="centerVoltage();return false;"></p:button>
+						</h:panelGrid>
+
+						<script>
+							var namespace = '#{facesContext.externalContext.encodeNamespace('')}';
+							CVRG_drawECGgraphSingle('ecgSingle_div', namespace);
+						</script>
+
+						<h:panelGroup id="list_div" layout="block"></h:panelGroup>
+					</p:panel>
+
+				</p:layoutUnit>
+
+				<p:layoutUnit id="viewChangeButtons" position="east"
+					resizable="true" size="150" minSize="50" maxSize="550">
+					<h:form>
+						<p:commandButton id="returnToList" value="Back to List"
+							action="#{visualizeGraphBacking.viewSelectionTree}" ajax="true"
+							icon="ui-icon-seek-first" title="View ECG file selection tree." />
+
+						<p:commandButton id="showMultiLead" value="View Multi"
+							action="#{visualizeGraphBacking.view12LeadsGraph}"
+							icon="ui-icon-seek-end" title="View Single Lead"
+							onkeydown="CVRG_clickCallCommon(0);" />
+					</h:form>
+				</p:layoutUnit>
+			</p:layout>
+		</h:panelGroup>
+
+	</h:body>
+</f:view>

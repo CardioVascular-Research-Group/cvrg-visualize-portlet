@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+	<h:head />
+	<h:body>
+		<style>
+			.ui-widget{
+		    	font-size: 1.2em;
+			}
+		</style>
+		<h:form>
+			<p:remoteCommand name="calledOnLoad" oncomplete="isMultigraph=true;renderData();" autoRun="true" />
+			<p:remoteCommand name="viewSingleGraph2Param" action="#{visualizeGraphBacking.viewSingleGraph2}" />
+		</h:form>
+			
+
+		<h:panelGroup layout="block">
+			
+			<p:layout id="graphView" style="width:100%;height:550px">
+			
+				<p:layoutUnit id="ecgGraphLayout" position="center">
+					
+					<h:panelGroup id="panelMultipleGraph" layout="block" autoUpdate="true">
+						<script>
+							namespaceGlobal ='#{facesContext.externalContext.encodeNamespace('')}';
+						</script>
+						<ui:include src="include/multiLead_DIV.xhtml">
+							<ui:param name="wfbean" value="#{visualizeGraphBacking}"></ui:param>
+						</ui:include>
+					</h:panelGroup>
+				</p:layoutUnit>
+
+				<p:layoutUnit id="viewChangeButtons" position="north" resizable="true" collapsible="true">
+					<h:form>
+						<p:commandButton id="returnToList" value="Back to List"
+							action="#{visualizeSharedBacking.viewSelectionTree}" ajax="true"
+							styleClass="navigationButton" title="View ECG file selection tree." />
+
+<!-- 						<p:button id="voltCenterButtonMulti" value="center" type="button"
+							icon="ui-icon-arrowthick-2-n-s" styleClass="navigationButton"
+							title="Center each graph on it's median, while using the standard voltage scale (+/- 2000uV)."
+							onclick="centerVoltageMulti();return false;"></p:button>
+
+						<p:button id="voltCenterButtonMultiMode" value="center mode" type="button"
+							icon="ui-icon-arrowthick-2-n-s" styleClass="navigationButton"
+							title="Center each graph on it's mode, while using the standard voltage scale (+/- 2000uV)."
+							onclick="centerVoltageMultiMode();return false;"></p:button>
+
+						<p:button id="voltCenterNScaleButtonMulti"
+							value="center and scale" type="button"
+							icon="ui-icon-arrowthick-2-n-s" styleClass="navigationButton"
+							title="Center each graph on it's median, stretching the voltage scale of each independently."
+							onclick="centerScaleVoltageMulti();return false;"></p:button> -->
+
+					    <h:outputText value="" styleClass="navSpacerElement"/>
+						<!-- 
+						<p:button id="voltResetButtonMulti" value="reset" type="button"
+							icon="ui-icon-circle-plus" styleClass="navigationButton"
+							title="Reset all graphs to zero volts at the center, using the standard voltage scale (+/- 2000uV) and reset graph size."
+							onclick="resetMultiGraphDimensions();return false;"></p:button>
+
+						<p:button id="fillScreenTestButtonMulti" value="Fill Screen"
+							type="button" icon="ui-icon-circle-plus"
+							styleClass="navigationButton"
+							title="Stretch the graphs to fill the content area."
+							onclick="stretchToContentMulti();return false;"></p:button>
+ -->
+						<ui:include src="include/includePanZoom.xhtml" />								
+					</h:form>
+				</p:layoutUnit>	
+			</p:layout>
+		</h:panelGroup>
+	</h:body>
+</f:view>

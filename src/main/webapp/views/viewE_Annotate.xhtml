@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<f:view lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+	<h:body>
+		<ui:remove> <!-- *****************  style and script ************************* --> </ui:remove>
+		<style>
+			.title {
+				font-size: 12px;
+				font-weight: bold;
+				font-family: Calibri;
+			}
+			
+			.dataValue {
+				font-size: 12px;
+				font-weight: normal;
+				font-family: arial, sans-serif;
+			}
+		</style>
+		
+		<h:form id="formManualAnnotation">
+		
+			<p:remoteCommand name="lookupAnnotationParam" partialSubmit="true"
+				update="ontologyTermName ontologyDefinition"
+				action="#{annotationBacking.lookupDefinition}"/>
+			<p:remoteCommand name="updateSelectedPoint"
+				action="#{annotationBacking.updateSelectedPoint}" 
+				update="selectedAnnotationData"/>
+			<p:remoteCommand name="discardSelectedPoint"
+				action="#{annotationBacking.discardSelectedPoint}" 
+				update="selectedAnnotationData"/>
+			
+			<p:layout id="manualAnnotation" style="width:100%;height:550px" >
+			
+				<p:layoutUnit id="ontologyTree" position="west" header="Bioportal" size="350" minSize="300" collapsible="true" resizable="true">
+					<ui:remove> <!-- *****************  Left Panel, Ontology Tree ************************* --> </ui:remove>
+					<h:panelGroup id="panelLeft" style="background-color:#d0e4f6; padding:20 0; height:360px; width:325px">
+						<script src="/cvrg-visualize-portlet/js/widgets/jquery.ncbo.tree.js"></script>
+						<script src="/cvrg-visualize-portlet/js/widgets/jquery.ncbo.autocomplete.js"></script>
+						<link rel="stylesheet" type="text/css" href="/cvrg-visualize-portlet/css/widgets/jquery.ncbo.tree.css"></link>
+						<div id="tree"></div>
+						<script>
+							var widget_tree = $("#tree").NCBOTree({
+							  apikey: "#{annotationBacking.bioportalApikey}",
+							  ontology: "#{annotationBacking.bioportalOntology}",
+							  ncboUIURL: "#{annotationBacking.bioportalUIUrl}",
+							  ncboAPIURL: "#{annotationBacking.bioportalAPIUrl}",
+							  width: 325,
+							  startingClass: #{annotationBacking.bioportalClassId},
+							  
+							  afterSelect: NEWTREE_afterSelect,
+							  afterJumpToClass: NEWTREE_afterJumpToClass
+							  
+							});
+						</script>
+					</h:panelGroup>
+					<ui:remove> <!-- *****************  Left Panel Row 2, tree reseting buttons ************************* --> </ui:remove>
+					<h:panelGroup id="treeButtons" layout="block" style="align:center">
+						<p:commandButton value="ECG Ontology" title="Show the points and intervals branches of the ECG ontology." oncomplete="widget_tree.changeOntology('ECG');"/>
+						<p:commandButton value="ECG Intervals Ontology" title="Show only the intervals branch of the ECG ontology." oncomplete="widget_tree.changeOntology('ECGT');" />
+					</h:panelGroup>
+				</p:layoutUnit>
+				
+				<p:layoutUnit id="annotation" position="center" header="Annotation">
+					<ui:remove> <!-- *****************  Right Panel, Graph onclick data: ECG attributes & Selected points & Term Selection/manual comments ************************* --> </ui:remove>
+					<ui:remove> <!-- *****************  Alternate Right Panel, Fine tune Graph   graphContainer- height:350px;************************* --> </ui:remove>
+	
+					<p:panel id="panelRightAlternate" styleClass="fineTuningGraph" widgetVar="fineTuningGraph" visible="false" header="Fine Tuning Graph" style="position: relative;width:0%; float: right; height:99%; overflow: auto;">				
+						<h:panelGroup  layout="block" style="top:0; padding:0;">
+							<h:panelGrid id="graphContainer" columns="1" border="0" style="background-color:#d0f6d0; top:0; padding:0 0;" rendered="#{visualizeSharedBacking.showFineGraph}">
+								<h:panelGroup id="fineTune_div" layout="block" class="graph" style="border:2; ">
+									GRAPH WILL GO HERE
+									<h:graphicImage value="/image/graph-loader.gif" title="graph loading indicator" alt="graph loading indicator" />
+								</h:panelGroup>
+			
+								<h:panelGroup id="status_div" layout="block" style="height:20px;">
+									Mouse over graph to see data details.
+								</h:panelGroup>
+			
+								<h:panelGroup id="editButton_div" layout="block" style="align:right">
+										<p:commandButton value="Update" 
+											title="Save the newly selected point." 
+											rendered="#{not visualizeSharedBacking.previousAnnotation}"
+											actionListener="#{annotationBacking.showNewAnnotationDetails}"
+											oncomplete="updateFineTuning();hideManualGraphPanel();"/>
+										<p:commandButton value="Discard"
+											title="Discard the newly selected point and restore the previous point."
+											rendered="#{not visualizeSharedBacking.previousAnnotation}"
+											actionListener="#{annotationBacking.showNewAnnotationDetails}"
+											oncomplete="discardFineTuning();hideManualGraphPanel();" />
+										<p:commandButton value="Close Graph"
+											title="Close the graph and show the numbers chart."
+											actionListener="#{annotationBacking.showNewAnnotationDetails}"
+											oncomplete="fineTuningPoint=-1;hideManualGraphPanel();" />
+								</h:panelGroup>
+							</h:panelGrid>				
+						</h:panelGroup>
+					</p:panel>
+					<p:panel id="panelRight" styleClass="annotationData" style="background-color:#d0e4f6; top:2px; padding:0px; height:99%; width:99.9%; position: absolute; overflow: auto;" >
+						<ui:remove> <!-- *****************  Right Panel, Upper section: ECG attributes ************************* --> </ui:remove>
+						<h:panelGrid id="GraphClickData" columns="2" frame="none" border="0" cellpadding="0" cellspacing="0" styleClass="title" style="vertical-align:text-top;width:100%;">
+	
+							<ui:remove> <!-- *****************  Right Panel, Upper left section: ECG attributes ************************* --> </ui:remove>
+							<p:fieldset legend="ECG Info" style="min-height: 150px;"> 
+								<p:panelGrid id="ECG_Attributes" style="width:100%;">
+									<p:row>
+										<p:column style="font-weight: bold;" >Subject ID</p:column>
+										<p:column><h:outputLabel value="#{annotationBacking.studyEntry.subjectId}" styleClass="dataValue" /></p:column>
+									</p:row>
+									<p:row>
+										<p:column style="font-weight: bold;" >Lead</p:column>
+										<p:column><h:outputLabel value="#{annotationBacking.leadName}" styleClass="dataValue" /></p:column>
+									</p:row>
+									<p:row>
+										<p:column style="font-weight: bold;" >Rate</p:column>
+										<p:column><h:outputLabel value="#{annotationBacking.studyEntry.samplingRate}Hz" styleClass="dataValue" /></p:column>
+									</p:row>
+									<p:row>
+										<p:column style="font-weight: bold;" >Annotations</p:column>
+										<p:column><h:outputLabel value="#{visualizeSharedBacking.annotationCount}" styleClass="dataValue" /></p:column>
+									</p:row>
+								</p:panelGrid>
+							</p:fieldset>
+	
+							<ui:remove> <!-- *****************  Right Panel, Upper right Section: Selected points ************************* --> </ui:remove>
+							<p:fieldset legend="Selection" style="min-height: 150px"> 
+								<p:panelGrid style="width:100%;" id="selectedAnnotationData">  
+								    <f:facet name="header">  
+								        <p:row>
+								        	<p:column>
+												<p:commandButton value="All Selection"
+														 title="View the entire interval."
+														 rendered="#{!annotationBacking.annotation.singlePoint}"
+														 actionListener="#{annotationBacking.showNewAnnotationGraph}"
+														 update="panelRightAlternate"
+														 oncomplete="fineTuningPoint=-1; renderSingleGraphFullAnnotation('#{annotationBacking.annotation.startXcoord}', '#{annotationBacking.annotation.endXcoord}', true);showManualGraphPanel();"/>
+											</p:column>  
+								            <p:column >Onset</p:column>
+								            <p:column >Offset</p:column>
+								        </p:row>
+							        </f:facet>
+							          
+									<p:row>
+										<p:column style="font-weight: bold;">Time ( X 10^#{annotationBacking.annotation.expTimeInSec} Sec)</p:column>
+										<p:column><h:outputText id="dataSX" styleClass="dataValue" value="#{annotationBacking.onSet}" /></p:column>
+										<p:column><h:outputText id="dataSXDuration" styleClass="dataValue" value="#{annotationBacking.offSet}" rendered="#{!annotationBacking.annotation.singlePoint}"/></p:column>
+									</p:row>
+									
+									<p:row>
+										<p:column style="font-weight: bold;">Amplitude(μV)</p:column>
+										<p:column><h:outputText id="dataSY" styleClass="dataValue" value="#{annotationBacking.annotation.startYcoord}" /></p:column>
+										<p:column><h:outputText id="dataSYDuration" styleClass="dataValue" value="#{annotationBacking.annotation.endYcoord}" rendered="#{!annotationBacking.annotation.singlePoint}" /></p:column>
+									</p:row>
+									
+									<f:facet name="footer">
+										<p:row>
+											<p:column style="font-weight: bold;">Adjust</p:column>  
+											<p:column>
+												<p:commandButton value="Chg" style="height:80%"
+														 title="Fine tune the selected onset time." 
+														 actionListener="#{annotationBacking.showNewAnnotationGraph}"
+														 update="panelRightAlternate"
+														 oncomplete="fineTuningPoint=0;renderSingleGraphFineTuner('#{annotationBacking.annotation.startXcoord}',true, '#{annotationBacking.annotation.name}');showManualGraphPanel();"/>
+											</p:column>
+											<p:column>
+												<p:commandButton value="Chg"
+														 title="Fine tune the selected Offset time."
+														 rendered="#{!annotationBacking.annotation.singlePoint}"
+														 actionListener="#{annotationBacking.showNewAnnotationGraph}"
+														 update="panelRightAlternate"
+														 oncomplete="fineTuningPoint=1; renderSingleGraphFineTuner('#{annotationBacking.annotation.endXcoord}', true, '#{annotationBacking.annotation.name}');showManualGraphPanel();"/>
+											</p:column>
+										</p:row>
+									</f:facet>
+								</p:panelGrid>
+								<script>
+									singlePoint = #{annotationBacking.annotation.singlePoint};
+								</script>
+								
+							</p:fieldset>
+						</h:panelGrid>
+							
+							
+						<ui:remove> <!-- *****************  Right Panel, Lower Section: Term Selection/manual comments ************************* --> </ui:remove>
+						<p:panelGrid id="termSelection" style="background: whiteSmoke; width:100%; margin: 10px 0;">
+	
+							<h:outputLabel for="nodeIDName" value="*" rendered="false" />
+							<h:outputText id="nodeIDDOM" class="nodeIDsendDOM" value="#{annotationBacking.annotation.bioportalClassId}" rendered="false" />
+	
+							<f:facet name="header">  
+								<p:row>
+									<p:column colspan="2"> <h:outputLabel styleClass="title" value="Find the term in the bioportal ontology tree." /> </p:column>
+								</p:row>
+							</f:facet>
+	
+							<p:row>
+								<p:column><h:outputLabel for="ontologyTermName" styleClass="title" value="Term:" /></p:column>
+								<p:column>
+									<h:panelGroup id="ontologyTermName">
+										<h:outputLink target="_blank" value="#{annotationBacking.bioportalExternalLink}" rendered="#{annotationBacking.bioportalExternalLink != null}">
+											<h:outputText styleClass="dataValue" value="#{annotationBacking.annotation.name}" required="true" />
+										</h:outputLink>
+									
+										<h:outputText styleClass="dataValue" value="#{annotationBacking.annotation.name}" required="true" rendered="#{annotationBacking.bioportalExternalLink == null}"/>
+									</h:panelGroup>
+								</p:column>
+							</p:row>
+							<p:row>
+								<p:column><h:outputLabel for="ontologyDefinition" styleClass="title" value="Definition" /></p:column>
+								<p:column><h:outputText id="ontologyDefinition" styleClass="dataValue" value="#{annotationBacking.annotation.value}" /></p:column>
+							</p:row>
+							<p:row>
+								<p:column><h:outputLabel for="manualComment" styleClass="title" value="Comment" /></p:column>
+								<p:column>
+									<h:inputTextarea id="manualComment" styleClass="dataValue"  rows="5" style="width:100%" value="#{annotationBacking.annotation.description}"  />
+								</p:column>
+							</p:row>
+							
+							<f:facet name="footer">
+								<p:row>
+									<p:column colspan="2">
+										<ui:remove> <!-- *****************  Right Panel Row 2, Buttons ************************* --> </ui:remove>
+										<h:panelGroup id="buttons" layout="block" style="float: right;">
+											<p:commandButton value="Cancel"
+												action="#{annotationBacking.viewSingleGraph}"
+												oncomplete=""
+												title="Close manual annotation panel without saving." />
+											<p:commandButton value="Save"
+												disabled="#{visualizeSharedBacking.previousAnnotation}"
+												actionListener="#{annotationBacking.saveAnnotationSetFlag}"
+												action="#{annotationBacking.viewSingleGraph}" 
+												/>
+										</h:panelGroup>
+									</p:column>
+								</p:row>
+							</f:facet>
+						</p:panelGrid>
+					</p:panel>
+					
+				</p:layoutUnit>
+			</p:layout>
+		</h:form>
+	</h:body>
+</f:view>

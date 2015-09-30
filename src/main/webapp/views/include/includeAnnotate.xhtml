@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<h:body>
+	<ui:composition>
+		<!-- START 3:45 pm  Top notificationBar to set annotation flag disabled= {facesContext   postback and not facesContext  renderResponse }"  -->
+		<!-- SRART OF ANNOTAION INCLUDE DROP DOWN -->
+		<p:notificationBar position="top" effect="slide" widgetVar="bar"
+			styleClass="top"
+			style="background:#FDF6E3;width:1000px; height:550px;">
+			<h:form id="AnnotateMenubarCloseBtn">
+				<p:menubar header="Lead: #{annotationBacking.leadName}"
+					value="Lead: #{annotationBacking.leadName}" autoDisplay="true">        //same content as default menubar      
+            <p:menuitem value="Close" onclick="bar.hide()"
+						icon="ui-icon-close" />
+					<!-- Start Text  -->
+				</p:menubar>
+			</h:form>
+
+			<!-- Start  set up for placing a flag  -->
+
+			<h:panelGroup layout="block" id="AnnotationSetter" styleClass="">
+
+				<h:form id="frm">
+
+					<p:panel id="panel" header="Annotation"
+						style="position: absolute; padding:20 0; z-index:2013; 
+left:440px; top:60px; height:364px; width:540px;background: whiteSmoke;">
+
+
+						<h:outputLabel
+							class="window-buttons leadNamePosition borderTextAnalysysPop"
+							value="Lead Name" />
+
+						<h:panelGroup layout="block" id="leadNameHolder"
+							class="leadNamePosition2 borderTextAnalysysPop">
+							<h:outputText id="leadName" class="leadNamesendDOM"
+								value="#{annotationBacking.leadName}" />
+						</h:panelGroup>
+
+						<h:outputLabel
+							class="window-buttons dataSXPosition borderTextAnalysysPop"
+							value="X Start (mSec)" />
+
+						<h:panelGroup layout="block" id="dataSYHolder"
+							class="dataSXPosition2 borderTextAnalysysPop">
+							<h:outputText id="dataSX" class="dataSXsendDOM"
+								value="#{annotationBacking.dataSX}" />
+						</h:panelGroup>
+
+						<h:outputLabel
+							class="window-buttons DurationTitleStart borderTextAnalysysPop"
+							value="X End (mSec)" />
+
+						<h:panelGroup layout="block" id="dataSYHolderDuration"
+							class="dataSXPosition2Duration borderTextAnalysysPop">
+							<h:outputText id="dataSXDuration" class="dataSXsendDOMDuration"
+								value="#{annotationBacking.dataSXDuration}" />
+						</h:panelGroup>
+
+						<h:outputLabel
+							class="window-buttons dataSYPosition borderTextAnalysysPop"
+							value="Y Start (μV)" />
+
+						<h:panelGroup layout="block" id="dataSXHolder"
+							class="dataSYPosition2 borderTextAnalysysPop">
+							<h:outputText id="dataSY" class="dataSYsendDOM"
+								value="#{annotationBacking.dataSY}" />
+						</h:panelGroup>
+
+						<h:outputLabel styleClass="ui-icon ui-icon-trash"
+							class="window-buttons DurationTitle borderTextAnalysysPop"
+							value="Y End (μV)" />
+
+						<h:panelGroup layout="block" id="dataSXHolderDuration"
+							class="dataSYPosition2Duration borderTextAnalysysPop">
+							<h:outputText id="dataSYDuration" class="dataSYsendDOMDuration"
+								value="#{annotationBacking.dataSYDuration}" />
+						</h:panelGroup>
+
+
+
+
+						<h:panelGrid columns="2"
+							style="position: absolute;left:10px;top:160px;">
+
+							<h:outputLabel for="nodeIDName" value="*" rendered="false" />
+							<h:outputText id="nodeIDDOM" class="nodeIDsendDOM"
+								value="#{annotationBacking.nodeID}" rendered="false" />
+
+							<h:outputLabel for="FindTermName" value="" />
+
+							<p:button icon="ui-icon ui-icon-circle-arrow-w" iconPos="left"
+								value="Find The Term In The Bioportal Ontology Tree"
+								style="width:400px;" />
+
+							<h:outputLabel for="termName"
+								icon="ui-icon ui-icon-star wijmo-wijmenu-icon-left"
+								style="font-size: 14px; font-weight:bold;  font-family:Calibri;"
+								value="Term:" />
+							<h:outputText id="termNameDOM"
+								style="font-size: 14px; font-weight:bold;  font-family:Calibri;"
+								class="termNamesendDOM" value="#{annotationBacking.termName}"
+								required="true" />
+
+							<h:outputLabel for="discript"
+								style="font-size: 14px;  font-weight:bold; font-family:Calibri;"
+								value="Definition" />
+
+							<div id="showData" class="showDataStyle"></div>
+
+							<!-- <p:commandButton   id="set" value="close" onclick="bar.hide()"  /> -->
+
+							<p:commandButton value="Save" onclick="$('#showData').empty()"
+								action="#{annotationBacking.showNodeID}"
+								actionListener="#{annotationBacking.saveAnnotationSetFlag}"
+								oncomplete="handleComplete(xhr, status, args)" />
+
+							<p:commandButton value="Cancel" onclick="bar.hide();" />
+
+							<!-- END Top notificationBar to set Annotation flag Note:  type="button" use to turn button off of primefaces -->
+							<!-- START Below - TermName for display and sends the nodeID to backing bean : HIDDEN from VIEW -->
+							<p:remoteCommand name="setBioportalOntology"
+								actionListener="#{annotationBacking.showNodeID}"
+								out="fullAnnotationDOM" />
+							<script>
+function setBioportalDefinition() {
+//your custom code
+setBioportalOntology(); //makes a remote call
+
+}
+</script>
+
+							<h:inputText id="termNamesend" class="termNamesendDOM2"
+								style="display:none" value="#{annotationBacking.termName}">
+								<p:ajax update="termNameDOM" event="keyup" />
+							</h:inputText>
+
+							<!-- invisable  3db6e3 -->
+
+							<!-- NOT IN USE for display -->
+							<h:inputTextarea id="fullAnnotationDOM" rows="6" cols="47"
+								class="fullAnnotationsendDOM"
+								value="#{annotationBacking.fullAnnotation}"
+								completeMethod="#{autoComplete.completeArea}" queryDelay="750"
+								minQueryLength="2"
+								style=" width:248px!Important;  display:none; border-style: inset; border-width: 2px; font-size: 12px; font-family:Calibri;width: 15em; padding: 1px 0px 1px 0px; background-color: white; ">
+								<p:ajax />
+							</h:inputTextarea>
+
+							<!-- NOT IN USE  for display  -->
+							<h:inputText id="fullAnnotationsend"
+								class="fullAnnotationsendDOM2" style="display:none"
+								value="#{annotationBacking.fullAnnotation}">
+								<p:ajax update="fullAnnotationDOM" event="keyup" />
+							</h:inputText>
+							<!-- invisable -->
+
+							<h:inputText id="nodeIDsend" class="nodeIDsendDOM2"
+								style="display:none" value="#{annotationBacking.nodeID}">
+								<p:ajax update="nodeIDDOM" event="keyup" />
+							</h:inputText>
+							<!-- END  TermName for display and sends the nodeID to backing bean : HIDDEN from VIEW -->
+
+							<!-- START  inputs to send the data to the Backing bean for the lead X and Y  : HIDDEN from VIEW -->
+							<h:inputText id="leadNamesend" class="leadNamesendDOM2"
+								style="display:none" value="#{annotationBacking.leadName}">
+								<p:ajax update="leadName" event="keyup" />
+							</h:inputText>
+
+							<h:panelGroup layout="block" id="leadnumHolder"
+								style="display:none"
+								class="leadnumPosition2 borderTextAnalysysPop">
+								<h:outputText id="leadnum" class="leadnumsendDOM"
+									value="#{annotationBacking.leadnum}" />
+							</h:panelGroup>
+
+							<h:inputText id="leadnumsend" class="leadnumsendDOM2"
+								style="display:none" value="#{annotationBacking.leadnum}">
+								<p:ajax update="leadnum" event="keyup" />
+							</h:inputText>
+
+
+							<h:inputText id="dataSXsend" class="dataSXsendDOM2"
+								style="display:none" value="#{annotationBacking.dataSX}">
+								<p:ajax update="dataSX" event="keyup" />
+							</h:inputText>
+
+							<h:inputText id="dataSYsend" class="dataSYsendDOM2"
+								style="display:none" value="#{annotationBacking.dataSY}">
+								<p:ajax update="dataSY" event="keyup" />
+							</h:inputText>
+
+							<h:inputText id="dataSXsendDuration"
+								class="dataSXsendDOM2Duration" style="display:none"
+								value="#{annotationBacking.dataSXDuration}">
+								<p:ajax update="dataSXDuration" event="keyup" />
+							</h:inputText>
+
+							<h:inputText id="dataSYsendDuration"
+								class="dataSYsendDOM2Duration" style="display:none"
+								value="#{annotationBacking.dataSYDuration}">
+								<p:ajax update="dataSYDuration" event="keyup" />
+							</h:inputText>
+							<!-- Duration -->
+							<!-- END inputs to send the data to the Backing bean for the lead X and Y : HIDDEN from VIEW -->
+						</h:panelGrid>
+					</p:panel>
+					<p:panel id="panelLeft" header="Bioportal"
+						style="background-color:#d0e4f6; position: absolute; padding:20 0;  left:30px; top:60px; height:364px; width:380px">
+						<p:media player="flash" id="OntologyTree"
+							value="http://keg.cs.uvic.ca/ncbo/ontologytree/OntologyTree.swf?"
+							style="left:40px;position:absolute;" width="300" height="300">
+							<f:param name="allowScriptAccess" value="always" />
+							<f:param name="flashVars"
+								value="ontology=2079&amp;alerterrors=false&amp;canchangeontology=true&amp;virtual=true" />
+						</p:media>
+					</p:panel>
+				</h:form>
+			</h:panelGroup>
+			<!-- END INCLUDE Dropdown for placing an annotation  -->
+
+			<h:outputScript>
+var OmniFaces=OmniFaces
+    function showData() {
+        $('#showData').empty();
+        var data = OmniFaces.Ajax.data;
+        var $showData = $("#showData");
+        $.each(data, function(key, value) {
+            $("&lt;div&gt;").text(key + "** " + JSON.stringify(value)).appendTo($showData);
+        });
+    }
+ 
+// Annotation recieved from sending the nodeName  from Bioportal -- annotationBacking.java showNodeID.java
+</h:outputScript>
+
+			<h:outputScript>
+function setAnnotionXYonClickDrop(){
+
+ // Lead Name  send to the input to submit to the backing bean
+ 
+      $(".leadNamesendDOM").text(sSecondSuffix);
+      $(".leadNamesendDOM2").val(sSecondSuffix);
+      
+ // leadNum - leadnum send to the input to submit to the backing bean
+ 
+      $(".leadnumsendDOM").text(leadNum);
+      $(".leadnumsendDOM2").val(leadNum);
+      
+ // X  send to the input to submit to the backing bean
+ 
+      $(".dataSXsendDOM").text(dataSX);
+      $(".dataSXsendDOM2").val(dataSX);
+
+ // Y   send to the input to submit to the backing bean
+ 
+      $(".dataSYsendDOM").text(dataSY);
+      $(".dataSYsendDOM2").val(dataSY);
+
+}
+
+// Interval_new.js  RSA 03 15 2013
+
+</h:outputScript>
+
+			<script>
+function handleComplete(xhr, status, args) {
+
+    if(args.validationFailed) {
+        alert("Required Text In Each Field Then Save " + dataSX  + ", " + dataSY );
+    } 
+    
+    else {
+       alert("Values have been saved:" + args.saved);
+    // alert("Annotation saved: " + args.annotationBackingBean.portalDefinitionName + ", Term Name saved: " + args.annotationBackingBean.termName); 
+
+    bar.hide();
+
+    }
+}
+
+ function DynamicTextonload() {
+// set Y time on page
+       document.getElementById('timeLabelPrefixName').innerHTML = CVRG_timeLabelPrefix; 
+// RSA
+//     document.getElementById('leadNamesend').innerHTML = leadName; 
+       document.getElementById('topText').innerHTML = leadName; 
+  
+      $(".leadNamesendDOM").text(sSecondSuffix);
+      $(".leadNamesendDOM2").val(sSecondSuffix);
+
+}
+
+function ClearDurationVars() {
+
+//    CLEAR Y Duration point send to the input to submit to the backing bean
+//    MOVED to the interval_new.js 
+      $(".dataSYsendDOMDuration").text(dataECoords[1]);
+      $(".dataSYsendDOM2Duration").val(dataECoords[1]);
+
+      $(".dataSYsendDOMDuration").empty(); $(".dataSYsendDOM2Duration").empty();
+//    CLEAR X Duration point send to the input to submit to the backing bean
+      $(".dataSXsendDOMDuration").text(dataECoords[0]);
+      $(".dataSXsendDOM2Duration").val(dataECoords[0]);
+
+//     $(".dataSXsendDOMDuration").text(0);
+//     $(".dataSXsendDOM2Duration").val(0);
+
+}
+</script>
+
+
+
+		</p:notificationBar>
+		<!-- END OF ANNOTAION DROP DOWN -->
+
+
+
+	</ui:composition>
+</h:body>
+</html>

@@ -1,0 +1,79 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:graph="http://java.sun.com/jsf/composite/graphcontainer">
+
+	<style>
+		.ylabelCal {
+			left: -5px;
+			top: 50%;
+			font-size: 8pt;
+			/* Safari */
+			-webkit-transform: rotate(-90deg);
+			/* Firefox */
+			-moz-transform: rotate(-90deg);
+			/* IE */
+			-ms-transform: rotate(-90deg);
+			/* Opera */
+			-o-transform: rotate(-90deg);
+			/* Internet Explorer
+			    filter: progid : DXImageTransform.Microsoft.BasicImage ( rotation = 3 );
+			     */
+			transform: rotate(-90deg);
+		}
+		
+		.toplabelBold {
+			font-weight:bold;
+			text-align: right;
+			font-size: 1.2em;
+		}
+		.toplabel {
+			font-size: 1.2em;
+		}
+	</style>
+
+	<!-- Instruction label -->
+	<h:panelGrid layout="block" id="instruction12Lead" styleClass="instruction12Lead" columns="2" cellpadding="20">
+		<h:panelGroup>
+			<h:outputLabel id="subjectLabel" styleClass="toplabelBold" value="Subject:" />
+			<h:outputText id="subjectValue" styleClass="toplabel" value="#{visualizeSharedBacking.sharedStudyEntry.subjectId}" />
+	
+			<h:outputLabel id="leadLabel" styleClass="toplabelBold" value=" / Lead count:" />
+			<h:outputText id="leadValue"  styleClass="toplabel" value="#{visualizeSharedBacking.leadCount}" />
+	
+			<h:outputLabel id="rateLabel" styleClass="toplabelBold" value=" / Sampling-rate:" />
+			<h:outputText id="rateValue"  styleClass="toplabel" value="#{visualizeSharedBacking.samplingRate}" />
+	
+			<h:outputLabel id="durationLabel" styleClass="toplabelBold" value=" / ECG duration:" />
+			<h:outputText id="durationValue"  styleClass="toplabel" value="#{visualizeSharedBacking.durationSec}" />
+		</h:panelGroup>
+		
+		<h:outputLabel id="instruction" styleClass="toplabelBold" value=" [Click a graph to expand.]" />
+	</h:panelGrid>
+
+	<!-- START 12 lead container -->
+	<h:inputHidden id="voltCenterInputALL" value="50" immediate="true" />
+
+	<script>
+		calibrationCount = #{wfbean.calibrationCount};
+		graphCount = #{visualizeSharedBacking.leadCount};
+	</script>
+	
+	<h:panelGrid id="Container_12LeadDivOutside" layout="block" columns="2" styleClass="Container_12LeadDivOutside">
+		
+		<p:dataGrid var="i" value="#{wfbean.multiLeadLayoutList}"  rowIndexVar="col"  columns="#{wfbean.multiLeadColumnCount}">
+		    <graph:calibrationGraph number="#{i.leadNumber}" rendered="#{!i.lead}"/>
+		    <graph:leadGraph number="#{i.leadNumber}" rendered="#{i.lead}"/>
+		</p:dataGrid>
+		
+		<p:slider id="voltCenterALL" for="voltCenterInputALL"
+			styleClass="voltCenterAllLead" style="height:500px" type="vertical"
+			animate="false"
+			onSlideEnd="panVoltage('ALL',false,'#{facesContext.externalContext.encodeNamespace('')}')" />
+
+	</h:panelGrid>
+	<!--  END 12 Lead Container -->
+</ui:composition>

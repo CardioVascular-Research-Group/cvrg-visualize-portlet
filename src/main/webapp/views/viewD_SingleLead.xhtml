@@ -1,0 +1,170 @@
+<?xml version="1.0"?>
+
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+	<h:head />
+	<h:body>
+		<style>
+			div.ui-widget-overlay{
+				background: #EEF0F2!important;
+				opacity: 1!important;
+				z-index: 11!important;
+			}
+			
+			div.ui-blockui-content{
+				z-index: 12!important;
+			}
+		</style>
+
+		<h:form id="drawGraph_loadAnnotations">
+			<p:remoteCommand name="calledOnLoad"
+							 oncomplete="isMultigraph=false;renderSingleGraphAndAnnotations();PF('blockSinglePainel').hide();" autoRun="true">
+			</p:remoteCommand>
+		</h:form>
+		<script>
+			var renderSingleGraphAndAnnotations = function(){
+				var namespace = '#{facesContext.externalContext.encodeNamespace('')}';
+				var offsetMS = '#{visualizeSharedBacking.currentVisualizationOffset}';
+				var widthMS = '#{visualizeSharedBacking.durationMilliSeconds}';
+				// add 400 ms to account for the calibration.
+				SINGLELEAD_drawECGgraph('ecgSingle_div', namespace, (offsetMS), (widthMS+400));
+				SINGLELEAD_ShowAnnotationSingle();				
+			}
+		</script>
+
+		<h:form>
+			<p:remoteCommand name="viewAnnotationPointEdit" 	action="#{visualizeSharedBacking.viewAnnotationPoint}" />
+			<p:remoteCommand name="viewAnnotationIntervalEdit" 	action="#{visualizeSharedBacking.viewAnnotationInterval}" />
+			<p:remoteCommand name="viewCurrentAnnotationNoEdit" action="#{visualizeSharedBacking.viewCurrentAnnotation}" partialSubmit="false" />
+		</h:form>
+		
+		<h:panelGroup id="backgroundofContentDiv" layout="block" styleClass="backgroundofContent">
+			
+			<p:layout id="graphView" style="width:100%;height:720px" >
+				
+				<p:layoutUnit id="annotationLayout" position="west" header="Whole lead Annotations" collapsed="false" collapsible="true" resizable="true" size="270">
+					<h:form>
+						<p:dataTable styleClass="wlAnnotationTable" id="annotationTable" var="ann" value="#{singleLeadBacking.wholeLeadAnnotations}" resizableColumns="true">  
+					        <p:column sortBy="createdBy" headerText="Author">  
+					            <h:outputText value="#{ann.createdBy}" />  
+					        </p:column>  
+					  
+					  		<p:column headerText="Type">  
+					            <h:outputText value="ECG" rendered="#{ann.lead == null}"/>
+					            <h:outputText value="LEAD" rendered="#{ann.lead != null}"/>  
+					        </p:column>
+					  
+					        <p:column sortBy="name" headerText="Name">  
+					            <h:outputText value="#{ann.name}" />  
+					        </p:column>  
+					  
+					        <p:column sortBy="value" headerText="Value">  
+					            <h:outputText value="#{ann.value}" />  
+					        </p:column>  
+					    </p:dataTable>  
+					</h:form>
+				</p:layoutUnit>
+				
+				<p:layoutUnit id="ecgGraphLayout" position="center">
+					<p:panel id="graphContainerDiv" styleClass="ecgContainer">
+						<!-- START LEAD VISULAZATION  -->
+						<h:inputHidden id="voltMinInput" value="1" immediate="true" />
+						<h:inputHidden id="voltMaxInput" value="100" immediate="true" />
+						<h:inputHidden id="voltCenterInput" value="0" immediate="true" />
+
+						<p:blockUI block="graphContainerDiv" widgetVar="blockSinglePainel" blocked="true" animate="false" > 
+							Loading<br />
+							<p:graphicImage value="/image/graph-loader.gif" title="graph loading indicator" alt="graph loading indicator"></p:graphicImage>
+						</p:blockUI>
+
+						<h:panelGrid columns="2" border="0" id="Container_1LeadOutside" styleClass="Container_1LeadOutside">
+							<h:outputText value="" styleClass="stubTd"/>
+							
+							<h:panelGroup id="title_div" layout="block" >
+								<h:outputText id="TitleDiv0" value="#{singleLeadBacking.leadDescription}" styleClass="title" />
+							</h:panelGroup>
+
+							<p:slider id="sliderVoltCenterSingle"
+								for="#{facesContext.externalContext.encodeNamespace(':voltCenterInput')}"
+								type="vertical" style="height:400px" minValue="-50"
+								maxValue="50" onSlideEnd="zoomVoltage()" />
+							<h:panelGroup id="ecgSingle_div" layout="block" class="graph" style="border:1">
+								<!-- GRAPH WILL GO HERE  -->
+								<h:graphicImage value="/image/graph-loaderXXXX.gif" title="graph loading indicator" alt="graph loading indicator" />
+							</h:panelGroup>
+
+							<h:outputText value="" />
+							<h:panelGroup id="status_div" layout="block" style="height:20px;">
+								Mouse over graph to see data details.
+							</h:panelGroup>
+						</h:panelGrid>
+
+
+						<h:panelGroup id="list_div" layout="block"></h:panelGroup>
+					</p:panel>
+				</p:layoutUnit>
+
+				<p:layoutUnit id="viewChangeButtons" position="north" resizable="true" collapsible="true">
+<!-- 				<p:panel id="dragPanelPanZoom" styleClass="dragPanelPanZoom clearfix hoverShadow "> -->
+					<h:form>
+						<p:commandButton id="returnToList" value="Back to List"
+							action="#{visualizeSharedBacking.viewSelectionTree}" ajax="true"
+							styleClass="navigationButton" title="View ECG file selection tree." />
+
+						<p:commandButton id="showMultiLead" value="Back to Leads"
+							action="#{visualizeSharedBacking.viewMultiLeadGraph}" ajax="true"
+							styleClass="navigationButton" title="View all lead graphs for this ECG."/>
+
+							<!--  
+							icon="ui-icon-document"
+							icon="ui-icon-arrowthick-2-n-s"
+							icon="ui-icon-arrowreturnthick-1-w"
+							-->
+ 						<p:button id="voltCenterButton" value="center" type="button"
+							icon="ui-icon-document"
+							styleClass="navigationButton" 
+							title="Center the graph, while using the standard voltage scale (+/- 2000uV)."
+							onclick="centerVoltage();return false;" />
+
+						<p:button id="voltCenterNScaleButton" value="center and scale"
+							type="button" styleClass="navigationButton"
+							icon="ui-icon-arrowthick-2-n-s"
+							title="Center the graph, stretching the voltage scale."
+							onclick="centerScaleVoltage();return false;" /> 
+							
+						<h:outputText value="" styleClass="navSpacerElement"/>
+						<p:button id="voltResetButton" value="reset" type="button"
+							icon="ui-icon-circle-plus" styleClass="navigationButton"
+							title="Reset the graph to zero volts at the center, using the standard voltage scale (+/- 2000uV)"
+							onclick="setVoltageZoom(-2000,2000);return false;" />
+						<BR></BR>
+						<ui:include src="include/includePanZoom.xhtml" />
+					    <h:outputText value="" styleClass="navSpacerElement"/>
+						<h:selectOneMenu id="singleLeadWidth" value="#{visualizeSharedBacking.durationMilliSeconds}" styleClass="durationNav">
+						   	<f:selectItem itemValue="1200" itemLabel="1.2 Sec" />
+						   	<f:selectItem itemValue="2500" itemLabel="2.5 Sec" />
+						   	<f:selectItem itemValue="5000" itemLabel="5.0 Sec" />
+						   	<f:selectItem itemValue="10000" itemLabel="10 Sec"/>
+							<f:selectItem itemValue="15000" itemLabel="15 Sec"/>
+							<f:selectItem itemValue="30000" itemLabel="30 Sec"/>
+						</h:selectOneMenu>
+						<p:commandButton id="changeFramesize" 
+						    styleClass="durationNav"
+							value="change" 
+							title="Change display width, in Seconds." 
+							alt="Change display width, in Seconds."
+							update=":#{p:component('ecgDataHidden')}" 
+							onstart="PF('blockSinglePainel').show();"
+							oncomplete="renderData();PF('blockSinglePainel').hide();"
+							actionListener="#{visualizeSharedBacking.reloadData}" />						
+					</h:form>
+<!-- 					</p:panel> -->
+				</p:layoutUnit>
+			</p:layout>
+		</h:panelGroup>
+
+	</h:body>
+</f:view>

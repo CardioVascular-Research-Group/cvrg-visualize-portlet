@@ -1,0 +1,141 @@
+<?xml version="1.0"?>
+
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+	<h:head />
+	<h:body>
+
+		<h:panelGroup id="mainGroup" layout="block" >
+			<h:form id="formVisualize">
+				<h:panelGroup rendered="#{visualizeBacking.user != null}">
+				
+					<p:remoteCommand name="treeToTable" actionListener="#{visualizeBacking.treeToTable}" update="availableStudy"/>
+				
+					<p:layout id="layoutVisualizeInclude" style="width:100%; height:550px">
+						<p:layoutUnit styleClass="westpanel" position="west" header="Drag and drop folders or files to select" 
+									  resizable="true" size="385" minSize="300" maxSize="600" collapsible="true" >
+									  
+							<p:tree id="docTree" 
+								dynamic="true"
+								selection="#{visualizeBacking.fileTree.selectedNode}"
+								selectionMode="single"
+								value="#{visualizeBacking.fileTree.treeRoot}" 
+								var="node"
+								styleClass="waveformTree">
+								
+								<p:ajax event="expand" oncomplete="initDragDrop()" />
+								
+								<p:treeNode expandedIcon="ui-icon-folder-open" collapsedIcon="ui-icon-folder-collapsed">
+									<h:outputText value="#{node}" />
+								</p:treeNode>
+								
+								<p:treeNode type="document" icon="ui-icon ui-icon-note">
+									<h:outputText value="#{node}"/>
+								</p:treeNode>
+								
+								<p:treeNode type="analysis" icon="ui-icon ui-icon-document">
+									<h:outputText value="#{node}"/>
+								</p:treeNode>
+								
+								<p:treeNode type="document_error" icon="ui-icon ui-icon-alert">
+									<h:outputText value="#{node}"/>
+								</p:treeNode>
+								
+								<p:treeNode type="eureka" icon="ui-icon-lightbulb">
+									<h:outputText value="#{node}"/>
+								</p:treeNode>
+								
+								<p:treeNode type="home" icon="ui-icon-home">
+									<h:outputText value="#{node}"/>
+								</p:treeNode>
+							</p:tree>
+
+							<h:panelGroup layout="block">
+								<h3 class="ui-widget ui-widget-header ui-corner-all submenu-title" style="padding:5px 6px;">Visualize Instructions</h3>
+								<ol>
+									<li>Drag records or folders to the right.</li>
+									<li>Select(highlight) a record from the list on the right.</li>
+									<li>Click "View ECG" button to graph the first 2 1/2 seconds.</li>
+									<li>Further instructions are on subsequent pages.</li>
+								</ol>
+							</h:panelGroup>
+						</p:layoutUnit>
+						
+						<p:layoutUnit position="center" header="Select One ECG Record to View Leads" >
+						
+							<p:messages id="messages_prime" showSummary="true" showDetail="true" autoUpdate="true" closable="true" escape="false" />
+			    	
+							<p:dataTable id="availableStudy" 
+								var="studyHolder"
+								sortMode="multiple"
+								rowKey="#{studyHolder.documentRecord.documentRecordId}"
+								value="#{visualizeBacking.tableList}"
+								selection="#{visualizeBacking.selectedStudyObject}"
+								selectionMode="single" 
+								paginator="true" 
+								rows="5"
+								rowIndexVar="index"
+								resizableColumns="true" 
+								paginatorAlwaysVisible="false"
+								paginatorPosition="top"
+								paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+								rowsPerPageTemplate="5,10,15,20"
+								style="width:100%"
+								emptyMessage="No records. Drop your files here!">
+	
+								<p:column headerText="Subject ID">
+									<h:outputText value="#{studyHolder.documentRecord.subjectId}" />
+								</p:column>
+	
+								<p:column headerText="Lead Count">
+									<h:outputText value="#{studyHolder.documentRecord.leadCount}" style="text-align:right" />
+								</p:column>
+	
+								<p:column headerText="Sampling Rate">
+									<h:outputText value="#{studyHolder.documentRecord.samplingRate}Hz" style="text-align:right" />
+								</p:column>
+	
+								<p:column headerText="Duration(Sec)">
+									<h:outputText value="#{studyHolder.documentRecord.durationSec}" style="text-align:right" />
+								</p:column>
+	
+								<p:column headerText="Original File Format">
+									<h:outputText value="#{studyHolder.documentRecord.originalFormat.label}" />
+								</p:column>
+	
+								<p:column headerText="Recording Date">
+									<h:outputText value="#{studyHolder.documentRecord.dateOfRecording}" style="text-align:right" />
+								</p:column>
+								
+								<p:column headerText="Remove" width="10%">
+									<p:commandLink styleClass="ui-icon ui-icon-close dataTableCentered" update="availableStudy" actionListener="#{visualizeBacking.removeTableItem}" oncomplete="initDragDrop()">
+										<f:param name="index" value="#{index}"/>
+									</p:commandLink>
+								</p:column>
+								
+								
+							</p:dataTable>
+							<div style="text-align: center;" class="ui-widget-header ui-corner-all">
+							<p:commandButton id="btnView12LeadECGTest" value="View ECG"
+										action="#{visualizeBacking.graphSelectedECG}"
+										icon="ui-icon-search"
+										title="View a graph of the selected ECG and its annotations" />
+							</div>
+						</p:layoutUnit>	
+					</p:layout>
+					<script type="text/javascript">
+						initDragDrop();
+					</script>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{visualizeBacking.user == null}">
+					<div class="signin">
+						Please <a href="/c/portal/login" rel="nofollow">Sign In</a>
+					</div>
+				</h:panelGroup>
+			</h:form>
+		</h:panelGroup>
+	</h:body>
+</f:view>

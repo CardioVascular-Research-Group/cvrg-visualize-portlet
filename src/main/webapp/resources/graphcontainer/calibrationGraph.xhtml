@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+    <h:head>
+        <title>This content will not be displayed</title>
+    </h:head>
+    <h:body>
+        <composite:interface>
+            <composite:attribute name="number"/>
+        </composite:interface>
+
+        <composite:implementation>
+			<div id="ContainerCal#{cc.attrs.number}" class="calContainer">
+				<span id="TitleCal#{cc.attrs.number}" class="titleCal, title">200 mS</span>
+				<table width="100px">
+					<tbody>
+						<tr>
+							<td>
+								<span id="yLabel#{cc.attrs.number}" class="ylabelCal, label">1mV</span>
+							</td>
+							<td>
+								<div id="graphDivCal#{cc.attrs.number}" class="graphCal, label"></div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<div id="labelCal#{cc.attrs.number}" class="labelCal, label">0:0</div>
+			</div>
+        </composite:implementation>
+    </h:body>
+</html>

@@ -1,0 +1,283 @@
+.Container_12LeadDivOutside {
+	border: 0px solid blue;
+	width: 300px;
+}
+
+.Container_12LeadDiv {
+	border: 0px solid red;
+}
+
+/*
+.centered {
+	margin: 0px auto;
+}
+*/
+
+/*********Start of Calibration Container Divs (div.calContainer below) ****
+#ContainerCal0{left:0px;top:0px;}
+#ContainerCal1{left:0px;top:175px;}
+#ContainerCal2{left:0px;top:350px;}
+#ContainerCal3{display:none;}
+*/
+/********* end of Calibration Container Divs *****/
+
+/********* Start of ECG Container Divs (div.ecgContainer below) ********
+/****** 1st column *****
+#ContainerDiv0{left:45px;top:0px;}
+#ContainerDiv1{left:45px;top:175px;}
+#ContainerDiv2{left:45px;top:350px;}
+*/
+/****** 2nd column *****
+#ContainerDiv3{left:290px;top:0px;}
+#ContainerDiv4{left:290px;top:175px;}
+#ContainerDiv5{left:290px;top:350px;}
+*/
+/****** 3rd column *****
+#ContainerDiv6{left:535px;top:0px;}
+#ContainerDiv7{left:535px;top:175px;}
+#ContainerDiv8{left:535px;top:350px;}
+*/
+/****** 4th column *****
+#ContainerDiv9{ left:780px;top:0px;}
+#ContainerDiv10{left:780px;top:175px;}
+#ContainerDiv11{left:780px;top:350px;}
+*/
+.voltCenterAllLead {
+	width: 10px;
+	height: 100%;
+}
+
+.ui-slider {
+	border-radius: 10px 10px 10px 10px;
+}
+
+/********* ECG ContainerDiv and children ********/
+.ecgContainer {
+	border: 1px solid black;
+	margin: 0 auto;
+	padding: 0 auto;
+}
+
+.title {
+	font-size: 1.2em;
+}
+
+.label {
+	text-align: center;
+	height: 35px;
+	font-size: 1.2em;
+}
+
+.graph {
+	height: 150px;
+	width: 120px;
+}
+
+.voltSlider {
+	right: -3px;
+	height: 100%;
+}
+
+/********* calibration ContainerDiv and children ********/
+.calContainer {
+	border: 1px solid black;
+	margin: 0 auto;
+	padding: 0 auto;
+}
+/* 
+.titleCal{
+    position:absolute;
+    left:5px;
+    top:0px;
+    font-size:8pt;
+}
+*/
+.labelCal {
+	text-align: center;
+	height: 35px;
+}
+
+.ylabelCal2{
+    position:absolute;
+    left:-5px;
+    top:50px;
+    font-size:1.2em;
+    /*
+    Safari
+    -webkit-transform: rotate(-90deg);
+    Firefox
+    -moz-transform: rotate(-90deg);
+    IE
+    -ms-transform: rotate(-90deg);
+    Opera
+    -o-transform: rotate(-90deg);
+    Internet Explorer 
+    filter: progid : DXImageTransform.Microsoft.BasicImage ( rotation = 3 );
+   */
+}
+/*
+.graphCal{
+    position:absolute;
+    left:10px;
+    top:20px;
+    width:40px;
+    height:150px;
+} */
+
+/******** drag able panels ********/
+/* 
+.clearfix:after { 
+   content: "."; 
+   visibility: hidden; 
+   display: block; 
+   height: 0; 
+   clear: both;
+}
+
+.dragPanelPhenotype{
+    top: 20px;
+    width: 200px; 
+    float:right;
+    padding-right:10px;
+    border-radius: 5px;
+    z-index: 1000;
+    clear: right;
+}
+
+.dragPanelComments{
+    top:40px;
+    width: 200px; 
+    float:right;
+    padding:10px;
+    z-index:1001;
+    clear: right;
+}
+*/
+.dragPanelPanZoom {
+	display:inline-block;
+	padding:0px 3px;
+	margin:0px 5px;
+}
+.ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-text-only.durationNav,
+.ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-text-icon-left.graphNav, 
+.ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-text-icon-left.navigationButton,
+.ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-text-only.navigationButton{
+	font-size:11px;
+	padding:0px;
+	margin:1px;
+}
+.navSpacerElement{
+	background:none;
+	display:inline-block;
+	width:2px;
+	height:5px;
+	padding:2px;
+	margin:3px;
+}
+.instruction12Lead td, .Container_1LeadOutside td{
+	font-size:11px;
+	padding:5px;
+}
+/* 
+.crossHairVert{
+	position: "relative";
+	display: "none";
+	width: "1px";
+	height: "100%";
+	bottom: "10px";
+	left: "0px";
+	backgroundColor: "blue";
+}
+ */
+ 
+.hoverShadow:hover {
+	border-radius: 5px;
+	box-shadow: 0 5px 10px rgba(80, 0, 0, .3);
+}					
+
+.ui-tree{
+	border:0!important;	
+}
+
+div.westpanel div.ui-widget-content{
+	overflow: auto;	
+}
+
+div.westpanel div.ui-widget-content .nav{
+  	margin-right: 18px;
+    position: relative;
+    right: -143px;
+    text-align: right;
+    top: -30px;
+    width: 218px;
+}
+
+div.westpanel div.ui-widget-content .waveformTree{
+	width: 100%;
+/*	height: 100%;*/
+	height: 350px;
+	overflow: auto;
+}
+
+div.signin{
+	text-align: center;
+}
+
+span.wfdragitem{
+	background-attachment: scroll;
+	background-color: transparent;
+	background-image: none;
+	background-position: 0 0;
+	background-repeat: repeat-y;
+	list-style: none outside none;
+	margin: 0;
+	padding: 1px 0 0;
+	
+	white-space: nowrap;
+	
+	font-size: 1em;
+	color: #4F4F4F;
+	cursor: pointer;
+	font-family: Arial,sans-serif;
+	text-align: left;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+span.wfdragInvalidItem{
+	cursor: no-drop!important;
+}
+
+span.wfdragitem span.wfdragicon{
+	display: inline-block;
+	height: 16px;
+	width: 16px;
+}
+
+span.wfdragitem span.wfdraglabel{
+	display: inline-block;
+	margin: 2px 0 0;
+	padding: 0 3px;
+	vertical-align: top;
+}
+
+div.wfdrop-active{
+	border: 2px solid #7096AB!important;
+}
+
+div.wfdrop-highlight{
+	border: 2px solid #C9EEFC!important;
+}
+
+a.dataTableCentered{
+	margin: 0 auto;
+	text-align: center;
+}
+.annotationLayout{
+	background-color:black;	
+}
+div.wlAnnotationTable thead tr th:nth-child(2) {
+    width: 20px !important;
+    padding-left: 5px;
+    padding-right: 11px;
+}
