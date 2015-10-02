@@ -129,7 +129,7 @@ public class VisualizeGraphBacking extends BackingBean implements Serializable {
 				Long docId = visualizeSharedBacking.getSharedStudyEntry().getDocumentRecordId();
 				Integer leadCount = visualizeSharedBacking.getSharedStudyEntry().getLeadCount();
 				
-				iaAnnCount = ConnectionFactory.createConnection().getAnnotationCountPerLead(docId, leadCount);
+				iaAnnCount = ConnectionFactory.createConnection().getAnnotationCountPerLead(docId, ResourceUtility.getCurrentUserId(), leadCount);
 				
 			}else{
 				this.getLog().error("--- fetchAnnotationArray() SharedStudyEntry not found.");
