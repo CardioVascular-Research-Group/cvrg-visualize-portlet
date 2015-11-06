@@ -203,7 +203,9 @@ public class VisualizeSharedBacking extends BackingBean implements Serializable 
 		//fetch data and print elapsed time.
 		long startTime = System.currentTimeMillis();
 		
-		VisualizationData visData = VisualizationManager.fetchSubjectVisualizationData(subjectID, currentVisualizationOffset, durationMilliSeconds, graphWidthPixels, samplingRate, leadCount, samplesPerChannel, getSharedStudyEntry().getLeadNames(), getSharedStudyEntry().getTimeSeriesId(), false, getSharedStudyEntry().getAduGain());
+		boolean executeInPortlet = "Portlet".equals(ResourceUtility.getOpenTsdStrategy());
+		
+		VisualizationData visData = VisualizationManager.fetchSubjectVisualizationData(subjectID, currentVisualizationOffset, durationMilliSeconds, graphWidthPixels, samplingRate, leadCount, samplesPerChannel, getSharedStudyEntry().getLeadNames(), getSharedStudyEntry().getTimeSeriesId(), executeInPortlet, getSharedStudyEntry().getAduGain());
 		
 		long estimatedTime = System.currentTimeMillis() - startTime;
 		this.getLog().info("--- - fetchSubjectVisualizationData() took " + estimatedTime +  " milliSeconds total. Sample Count:" + visData.getECGDataLength() + " Lead Count:" + visData.getECGDataLeads() );

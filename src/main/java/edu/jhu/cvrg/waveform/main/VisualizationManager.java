@@ -50,14 +50,14 @@ public class VisualizationManager {
 	 */
 	public static VisualizationData fetchSubjectVisualizationData(String subjectID, int offsetMilliSeconds, int durationMilliSeconds, 
 																  int graphWidthPixels, double samplingRate, int leadCount, int samplesPerChannel, 
-																  String leadNames, String timeseriesId, boolean useService, Double adugain) {
+																  String leadNames, String timeseriesId, boolean executeInPortlet, Double adugain) {
 		
 		log.info("--- -- fetchSubjectVisualizationData() subjectID: " + subjectID +  " offsetMilliSeconds: " + offsetMilliSeconds + " durationMilliSeconds: " + durationMilliSeconds );
 		long startTimeFetch = System.currentTimeMillis();
 		
 		VisualizationData visualizationData = null;
 		
-		if(useService){
+		if(!executeInPortlet){
 			LinkedHashMap<String, Object> parameterMap = new LinkedHashMap<String, Object>();
 			String serviceMethod = "fetchWFDBdataSegmentType2";
 			String serviceName = "waveformDataService"; 
