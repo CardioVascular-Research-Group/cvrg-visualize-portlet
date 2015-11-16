@@ -14,6 +14,11 @@
 				
 					<p:remoteCommand name="treeToTable" actionListener="#{visualizeBacking.treeToTable}" update="availableStudy"/>
 				
+					<p:dialog header="WAIT" widgetVar="dlg2" modal="true" height="100" closable="false" resizable="false">
+						<p:graphicImage value="/image/loader1.gif" styleClass="transferFileMessage"></p:graphicImage>
+					    <span class="transferFileMessage"><h:outputText value="Please wait, preparing files." /></span>
+					</p:dialog> 
+				
 					<p:layout id="layoutVisualizeInclude" style="width:100%; height:550px">
 						<p:layoutUnit styleClass="westpanel" position="west" header="Drag and drop folders or files to select" 
 									  resizable="true" size="385" minSize="300" maxSize="600" collapsible="true" >
@@ -122,7 +127,8 @@
 							<p:commandButton id="btnView12LeadECGTest" value="View ECG"
 										action="#{visualizeBacking.graphSelectedECG}"
 										icon="ui-icon-search"
-										title="View a graph of the selected ECG and its annotations" />
+										title="View a graph of the selected ECG and its annotations" 
+										onclick="PF('dlg2').show();"/>
 							</div>
 						</p:layoutUnit>	
 					</p:layout>

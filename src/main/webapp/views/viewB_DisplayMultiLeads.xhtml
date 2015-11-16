@@ -7,13 +7,14 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 	<h:head />
 	<h:body>
+		<f:event listener="#{visualizeGraphBacking.init}" type="preRenderView"></f:event>
 		<style>
 			.ui-widget{
 		    	font-size: 1.2em;
 			}
 		</style>
 		<h:form>
-			<p:remoteCommand name="calledOnLoad" oncomplete="isMultigraph=true;renderData();" autoRun="true" />
+			<p:remoteCommand name="calledOnLoad" oncomplete="isMultigraph=true;renderData();PF('dlg2').hide();" autoRun="true" />
 			<p:remoteCommand name="viewSingleGraph2Param" action="#{visualizeGraphBacking.viewSingleGraph2}" />
 		</h:form>
 			

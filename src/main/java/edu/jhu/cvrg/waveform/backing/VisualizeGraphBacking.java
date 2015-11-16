@@ -25,16 +25,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ComponentSystemEvent;
+
+import com.liferay.faces.portal.context.LiferayFacesContext;
 
 import edu.jhu.cvrg.data.dto.AnnotationDTO;
 import edu.jhu.cvrg.data.dto.DocumentRecordDTO;
 import edu.jhu.cvrg.data.factory.ConnectionFactory;
 import edu.jhu.cvrg.data.util.DataStorageException;
+import edu.jhu.cvrg.waveform.exception.VisualizeFailureException;
 import edu.jhu.cvrg.waveform.model.MultiLeadLayout;
 import edu.jhu.cvrg.waveform.utility.ResourceUtility;
 
@@ -51,13 +54,17 @@ public class VisualizeGraphBacking extends BackingBean implements Serializable {
 	
 	private int multiLeadColumnCount = 5; //default value
 	
-	@PostConstruct
-	public void init() {
+	public void init(ComponentSystemEvent ev) {
 		this.getLog().info("*************** VisualizeGraphBacking.java, initialize() **********************");
 		//set the default duration 
 		visualizeSharedBacking.setDurationMilliSeconds(2500);
     	viewMultiLeadGraph();
-    	populateWholeECGAnnotations();
+    	
+    	if(visualizeSharedBacking.getErrorMessages() != null && !visualizeSharedBacking.getErrorMessages().isEmpty()){
+    		LiferayFacesContext.getCurrentInstance().getApplication().getNavigationHandler().handleNavigation(LiferayFacesContext.getCurrentInstance(), null, visualizeSharedBacking.viewSelectionTree());
+    	}else{
+    		populateWholeECGAnnotations();
+        }
     	this.getLog().info("*************** DONE, initialize() **********************");
 	}
 
@@ -88,18 +95,31 @@ public class VisualizeGraphBacking extends BackingBean implements Serializable {
     public String viewMultiLeadGraph(){
     	this.getLog().info("+ VisualizeGraphBacking.java, viewMultiLeadGraph() +++ ");
     	
-		if(visualizeSharedBacking.getSharedStudyEntry() != null){
-			
-			int iLeadCount = visualizeSharedBacking.getSharedStudyEntry().getLeadCount();
-			if(visualizeSharedBacking.getData() == null){
-				iLeadCount = visualizeSharedBacking.fetchDisplayData();	
+		try {
+			if(visualizeSharedBacking.getSharedStudyEntry() != null){
+				
+				int iLeadCount = visualizeSharedBacking.getSharedStudyEntry().getLeadCount();
+				if(visualizeSharedBacking.getData() == null){
+					iLeadCount = visualizeSharedBacking.fetchDisplayData();	
+				}
+				
+				visualizeSharedBacking.setCurrentVisualizationOffset(0);
+				setMultiLeadLayoutList( getMultiLeadLayout(iLeadCount) );
+				int iaAnnCount[][] = fetchAnnotationArray();
+				visualizeSharedBacking.setGraphTitle(iaAnnCount, iLeadCount);
+				
+			}else{
+				throw new VisualizeFailureException("No subjects selected");
 			}
-			
-			visualizeSharedBacking.setCurrentVisualizationOffset(0);
-			setMultiLeadLayoutList( getMultiLeadLayout(iLeadCount) );
-			int iaAnnCount[][] = fetchAnnotationArray();
-			visualizeSharedBacking.setGraphTitle(iaAnnCount, iLeadCount);
+		} catch (VisualizeFailureException e) {
+			if(e.getCause() != null && !e.equals(e.getCause())){
+				visualizeSharedBacking.addErrorMessage(e.getMessage() + ". Caused by: "+ e.getCause().getMessage());
+			}else{
+				visualizeSharedBacking.addErrorMessage(e.getMessage());
+			}
+			return visualizeSharedBacking.viewSelectionTree();
 		}
+		
 		this.getLog().info("+ Exiting viewMultiLeadGraph() +++ ");
 		visualizeSharedBacking.setGraphMultipleVisible(true);
 		return "viewB_DisplayMultiLeads";

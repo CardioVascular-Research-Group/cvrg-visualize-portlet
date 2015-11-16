@@ -76,6 +76,16 @@ public class VisualizeBacking extends BackingBean implements Serializable {
 				this.getLog().info("*** fileTree already exists *** ");
 			}
 		}
+		
+		if(visualizeSharedBacking.getErrorMessages() != null && !visualizeSharedBacking.getErrorMessages().isEmpty()){
+			for (String message : visualizeSharedBacking.getErrorMessages()) {
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error" , "<br />"+message));	
+			}
+			if(tableList != null){
+				tableList.clear();
+			}
+			visualizeSharedBacking.setErrorMessages(null);
+		}
 			
 		this.getLog().info("*************** VisualizeBacking.java, init() finished **********************");
 	}
@@ -86,6 +96,7 @@ public class VisualizeBacking extends BackingBean implements Serializable {
      */
     public String graphSelectedECG(){
     	String nextView= null;
+    	visualizeSharedBacking.setErrorMessages(null);
     	this.getLog().info("+++ VisualizeBacking.java, graphSelectedECG() +++ ");
     	
     	if(tableList != null && tableList.size() == 1){

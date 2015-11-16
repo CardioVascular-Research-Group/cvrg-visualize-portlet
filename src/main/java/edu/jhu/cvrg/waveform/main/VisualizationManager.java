@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
+import edu.jhu.cvrg.waveform.exception.VisualizeFailureException;
 import edu.jhu.cvrg.waveform.model.VisualizationData;
 import edu.jhu.cvrg.waveform.utility.ECGVisualizeProcessor;
 import edu.jhu.cvrg.waveform.utility.ResourceUtility;
@@ -50,7 +51,7 @@ public class VisualizationManager {
 	 */
 	public static VisualizationData fetchSubjectVisualizationData(String subjectID, int offsetMilliSeconds, int durationMilliSeconds, 
 																  int graphWidthPixels, double samplingRate, int leadCount, int samplesPerChannel, 
-																  String leadNames, String timeseriesId, boolean executeInPortlet, Double adugain) {
+																  String leadNames, String timeseriesId, boolean executeInPortlet, Double adugain) throws VisualizeFailureException{
 		
 		log.info("--- -- fetchSubjectVisualizationData() subjectID: " + subjectID +  " offsetMilliSeconds: " + offsetMilliSeconds + " durationMilliSeconds: " + durationMilliSeconds );
 		long startTimeFetch = System.currentTimeMillis();
@@ -65,6 +66,7 @@ public class VisualizationManager {
 			parameterMap.put("timeseriesId", timeseriesId);
 			parameterMap.put("leadNames", leadNames);
 			parameterMap.put("adugain", adugain);
+			parameterMap.put("openTsdbHost", ResourceUtility.getOpenTsdbHost());
 			
 			parameterMap.put("offsetMilliSeconds", String.valueOf(offsetMilliSeconds));
 			parameterMap.put("durationMilliSeconds", String.valueOf(durationMilliSeconds));
@@ -87,18 +89,18 @@ public class VisualizationManager {
 			//***************************************************
 			try{
 				if(omeWSReturn != null){
-					Map<String, Object> paramMap = WebServiceUtility.buildParamMap(omeWSReturn);
-					boolean isGoodData = ((String) paramMap.get("Status")).equals("success");
+					Map<String, Object> returnMap = WebServiceUtility.buildParamMap(omeWSReturn);
+					boolean isGoodData = ((String) returnMap.get("Status")).equals("success");
 					
 					short siLeadCount=0;
 					String[] saChannelName;
 					if(isGoodData){
-						int iSampleCount = Integer.parseInt((String) paramMap.get("SampleCount"));
-						siLeadCount = Short.parseShort((String)paramMap.get("LeadCount"));
+						int iSampleCount = Integer.parseInt((String) returnMap.get("SampleCount"));
+						siLeadCount = Short.parseShort((String)returnMap.get("LeadCount"));
 						
-						int iSegmentOffset = new Integer( (String)paramMap.get("Offset") );
-						int iSkippedSamples = new Integer( (String)paramMap.get("SkippedSamples") );
-						int iSegmentDuration = new Integer( (String)paramMap.get("SegmentDuration") );
+						int iSegmentOffset = new Integer( (String)returnMap.get("Offset") );
+						int iSkippedSamples = new Integer( (String)returnMap.get("SkippedSamples") );
+						int iSegmentDuration = new Integer( (String)returnMap.get("SegmentDuration") );
 						String[] saTempDataIn = new String[siLeadCount+1]; //initialize the string array which will receive the CSV data for each channel
 						saChannelName = new String[siLeadCount+1]; // array of names of each channel(lead) e.g. I, II, III, V1, V2...
 						
@@ -110,7 +112,7 @@ public class VisualizationManager {
 						
 						for(int leadNum=0;leadNum < siLeadCount+1;leadNum++){
 							String key = "lead_"+leadNum;
-							saTempDataIn[leadNum] = (String)paramMap.get(key); 
+							saTempDataIn[leadNum] = (String)returnMap.get(key); 
 							if(leadNum==0){
 								saChannelName[0]="millisecond";
 							}else{
@@ -159,16 +161,20 @@ public class VisualizationManager {
 						log.info("--- -- parsing meta-data returned by web service took " + (parseMetaTime - webServiceTime) +  " milliSeconds.");
 						log.info("--- -- parsing primary ECG data returned by web service took " + (parsePrimaryDataTime - parseMetaTime) +  " milliSeconds.");
 						log.info("--- -- creating/populating result object took " + (createResultObjectTime - parsePrimaryDataTime) +  " milliSeconds.");
+					}else{
+						throw new VisualizeFailureException(returnMap.get("errorMessage").toString());
 					}
 				}
+			}catch (VisualizeFailureException e){
+				throw e;
 			} catch(Exception ex) {
-				ex.printStackTrace();
+				throw new VisualizeFailureException(ex);
 			}
 		}else{
 			
 			String[] leadNamesArray = leadNames.split(",");
 			
-			visualizationData = ECGVisualizeProcessor.fetchDataSegment(timeseriesId, leadNamesArray, offsetMilliSeconds, durationMilliSeconds, graphWidthPixels, false, samplesPerChannel, (int) samplingRate, adugain);
+			visualizationData = ECGVisualizeProcessor.fetchDataSegment(ResourceUtility.getOpenTsdbHost(), timeseriesId, leadNamesArray, offsetMilliSeconds, durationMilliSeconds, graphWidthPixels, false, samplesPerChannel, (int) samplingRate, adugain);
 			
 			String[] saLeadNames = new String[leadNamesArray.length+1];
 			saLeadNames[0] = "millisecond";

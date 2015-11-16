@@ -1,6 +1,7 @@
 package edu.jhu.cvrg.waveform.backing;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import edu.jhu.cvrg.filestore.exception.FSException;
 import edu.jhu.cvrg.filestore.main.FileStoreFactory;
 import edu.jhu.cvrg.filestore.main.FileStorer;
 import edu.jhu.cvrg.filestore.model.FSFile;
+import edu.jhu.cvrg.waveform.exception.VisualizeFailureException;
 import edu.jhu.cvrg.waveform.main.VisualizationManager;
 import edu.jhu.cvrg.waveform.model.VisualizationData;
 import edu.jhu.cvrg.waveform.utility.ResourceUtility;
@@ -54,6 +56,8 @@ public class VisualizeSharedBacking extends BackingBean implements Serializable 
 	public int annotationCount;
 	private List<AnnotationDTO> wholeEcgAnnotations;
 	
+	private List<String> errorMessages;
+	
 	/** 
 	 * Switches to the selection tree and list view.
      * Handles onclick event for the button "btnView12LeadECG" in the viewA_SelectionTree.xhtml view.
@@ -79,7 +83,12 @@ public class VisualizeSharedBacking extends BackingBean implements Serializable 
 			currentVisualizationOffset = maxAllowableOffset; 
 		}
 		
-		fetchDisplayData();
+		try {
+			fetchDisplayData();
+		} catch (VisualizeFailureException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		this.getLog().info("--Exiting function reloadData()");
 	}
 	public void panZeroSec() {
@@ -184,15 +193,21 @@ public class VisualizeSharedBacking extends BackingBean implements Serializable 
 		//check if starting point is too small.
 		if(currentVisualizationOffset<0) currentVisualizationOffset = 0;
 		
-		fetchDisplayData();
+		try {
+			fetchDisplayData();
+		} catch (VisualizeFailureException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		this.getLog().info("--Exiting function panToTime");
 	}
 	
 	
 	/** Fetch and display the ECG data for the current offset time.
 	 * @return - lead count
+	 * @throws VisualizeFailureException 
 	 */
-	protected int fetchDisplayData(){
+	protected int fetchDisplayData() throws VisualizeFailureException{
 		this.getLog().info("--- fetchDisplayData() with iCurrentVisualizationOffset:" + currentVisualizationOffset + " and iDurationMilliSeconds:" + durationMilliSeconds);
 		
 		String subjectID = getSharedStudyEntry().getSubjectId();
@@ -524,4 +539,20 @@ public class VisualizeSharedBacking extends BackingBean implements Serializable 
 		annotationCount = 0;
 		
 	}
+
+	public List<String> getErrorMessages() {
+		return errorMessages;
+	}
+
+	public void setErrorMessages(List<String> errorMessages) {
+		this.errorMessages = errorMessages;
+	}
+	
+	public void addErrorMessage(String message){
+		if(errorMessages == null){
+			errorMessages = new ArrayList<>();
+		}
+		errorMessages.add(message);
+	}
+	
 }
